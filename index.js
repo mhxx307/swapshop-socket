@@ -1,6 +1,13 @@
-const io = require("socket.io")(process.env.PORT || 8900, {
+const express = require("express");
+const app = express();
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+
+const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:4000/graphql"],
+        origin: "http://localhost:3000",
+        credentials: true,
     },
 });
 
@@ -23,29 +30,24 @@ const getUser = (userId) => {
 };
 
 io.on("connection", (socket) => {
-    console.log("connected");
+    console.log("New client connected " + socket.id);
 
     //take userId and socketId from user
     socket.on("addUser", (userId) => {
-        console.log(userId, "userId adduser");
-        console.log(socket.id, "socketid adduser");
+        console.log("userId addUser", userId);
+        console.log("socketId addUser", socket.id);
         addUser(userId, socket.id);
         io.emit("getUsers", users);
     });
 
     // send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-        console.log(users);
-        if (senderId) {
-            const user = getUser(senderId);
-            console.log(user, "user");
-            console.log(receiverId, "receiverId");
-            console.log(senderId, "senderId");
-            io.to(user.socketId).emit("getMessage", {
-                senderId,
-                text,
-            });
-        }
+        console.log("data from client", { senderId, receiverId, text });
+        console.log("all users", users);
+        const user = getUser(receiverId);
+        console.log("user receiver socket id", user.socketId);
+        io.to(user.socketId).emit("getMessage", { senderId, receiverId, text });
+        console.log(`Sent message to user with socket ID ${user.socketId}`);
     });
 
     //  disconnect
@@ -53,4 +55,12 @@ io.on("connection", (socket) => {
         removeUser(socket.id);
         io.emit("getUsers", users);
     });
+
+    socket.on("connect_error", (err) => {
+        console.log(`connect_error due to ${err.message}`);
+    });
+});
+
+server.listen(8900, () => {
+    console.log("Server is running on port 8900");
 });
