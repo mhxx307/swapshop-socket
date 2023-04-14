@@ -6,7 +6,7 @@ const { Server } = require("socket.io");
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: ["http://localhost:3000", "https://swap-shop-git-develop-mhxx307.vercel.app/"],
         credentials: true,
     },
 });
