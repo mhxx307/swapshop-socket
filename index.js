@@ -50,6 +50,17 @@ io.on("connection", (socket) => {
         console.log(`Sent message to user with socket ID ${user.socketId}`);
     });
 
+    socket.on("sendNotificationPublic", ({ text }) => {
+        io.emit("getNotificationPublic", text);
+        console.log(`Sent notification public ${text}`);
+    });
+
+    socket.on("sendNotificationPrivate", ({ senderId, receiverId, text }) => {
+        const user = getUser(receiverId);
+        io.to(user.socketId).emit("getNotificationPrivate", { senderId, receiverId, text });
+        console.log(`Sent notification private to user with socket ID ${user.socketId}`);
+    });
+
     //  disconnect
     socket.on("disconnect", () => {
         removeUser(socket.id);
