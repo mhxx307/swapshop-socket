@@ -1,5 +1,11 @@
+const cors = require("cors");
 const express = require("express");
 const app = express();
+app.use(
+    cors({
+        origin: "https://secondchance.vercel.app",
+    })
+);
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -8,9 +14,8 @@ const io = new Server(server, {
     cors: {
         origin: ["https://secondchance.vercel.app"],
         methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
-    }
+        credentials: true,
+    },
 });
 
 let users = [];
