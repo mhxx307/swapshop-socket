@@ -6,9 +6,11 @@ const { Server } = require("socket.io");
 
 const io = new Server(server, {
     cors: {
-        origin: "https://secondchance.vercel.app",
-        credentials: true,
-    },
+        origin: ["https://secondchance.vercel.app"],
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+    }
 });
 
 let users = [];
